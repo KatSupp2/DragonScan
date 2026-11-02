@@ -1,4 +1,4 @@
-# DragonScan v5.2.0: Raspberry Pi 5 Dragon Fruit Inspection & Desegregation Station
+                                    # DragonScan v5.2.0: Raspberry Pi 5 Dragon Fruit Inspection & Desegregation Station
 
 **DragonScan** is a multi-modal desktop and edge inspection system engineered for the **Raspberry Pi 5 (8GB)**. It solves the critical agricultural problem where dragon fruit peel appears normal externally, yet the internal flesh has undergone soft, translucent, or microbial degradation.
 

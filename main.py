@@ -1,13 +1,6 @@
-"""
-DragonScan - Raspberry Pi 5 Multi-Modal Dragon Fruit Inspection & Desegregation Station.
-Main Application Entry Point.
-"""
-
 import sys
 import logging
 from pathlib import Path
-
-# Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -16,7 +9,6 @@ import config
 from gui.dashboard import DragonScanApp
 
 def main():
-    # Setup structured logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
