@@ -24,12 +24,10 @@ def main():
     try:
         app.mainloop()
     except KeyboardInterrupt:
-        logger.info("Application interrupted by user. Exiting cleanly...")
+        logger.info("Application interrupted by user. Exiting...")
     finally:
         try:
             app.destroy()
         except Exception:
             pass
-
-if __name__ == "__main__":
-    main()
+main()

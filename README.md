@@ -1,102 +1,108 @@
-                                    # DragonScan v5.2.0: Raspberry Pi 5 Dragon Fruit Inspection & Desegregation Station
+# DragonScan v5.2.0
 
-**DragonScan** is a multi-modal desktop and edge inspection system engineered for the **Raspberry Pi 5 (8GB)**. It solves the critical agricultural problem where dragon fruit peel appears normal externally, yet the internal flesh has undergone soft, translucent, or microbial degradation.
+DragonScan is a dragon fruit inspection and sorting station built on the Raspberry Pi 5 (8 GB). It finds fruit whose peel looks normal but whose flesh has gone soft, translucent, or started to rot.
 
-The system enforces a **sequential 2-stage scanning pipeline**:
-1. **Stage 1: 45° FMCW Radar Subsurface Scan (Hi-Link HLK-LD6002 / ANDAR ADTE2104 60 GHz)**: Measures dielectric permittivity, water absorption, and flesh firmness beneath the peel.
-2. **Stage 2: Optical Camera Capture (Logitech C270 USB HD Webcam)**: Quantifies peel color (Ripe Magenta vs Bract Green vs Necrotic Rot), geometric size (Length, Width, Surface Area mm²/cm²), skin roughness, and **precise percentage of rotten peel area** at 720p 30 FPS.
-3. **Automated Desegregation**: If the rotten percentage exceeds the configured threshold (default 15.0%) or internal radar decay is flagged, the system commands the Raspberry Pi 5 GPIO actuator to physically sort out/eject the degraded fruit.
-4. **On-Device Model Training**: Train machine learning models directly inside the desktop GUI using experimental captures saved in [`RIPE/`](file:///c:/Users/paul/Documents/dragonfruit/RIPE) and [`ROTTEN/`](file:///c:/Users/paul/Documents/dragonfruit/ROTTEN).
+## How It Works
 
----
+Each fruit goes through two scans, one after the other:
 
-## 🛠️ Hardware Bill of Materials (Raspberry Pi 5 Setup)
-- **Raspberry Pi 5 (8GB RAM)**: Edge controller running Raspberry Pi OS Bookworm (64-bit).
-- **Logitech C270 HD Webcam**: 720p USB 2.0 camera connected via USB-A port (`/dev/video0`), streaming MJPG at 30 FPS.
-- **Hi-Link HLK-LD6002 (VERC V1.0) 60 GHz FMCW Radar Kit**: Mounted on ANDAR ADTE2104 V2.0 carrier board with on-board microstrip patch antennas, connected via USB-C to Pi 5 USB 3.0 port (`/dev/ttyUSB0` or `/dev/ttyACM0`).
-- **Physical 45° Fixed Sensor Rig**: Frame holding radar sensor at 45° angle of incidence and camera vertically at 250 mm height.
-- **Raspberry Pi Active Cooler**: Maintains temperature during real-time 30 FPS processing.
-- **27W USB-C Power Supply**: Provides stable 5.1V / 5A for Pi 5 and attached sensors.
-- **Sorting Actuator / Relay (GPIO 17)**: Connected to pneumatic solenoid or diverter arm.
+1. Radar scan: a 60 GHz FMCW radar, mounted at 45°, measures water content and flesh firmness beneath the peel.
+2. Camera scan: a webcam measures peel color, size, skin texture, and the percentage of rotten peel area.
 
----
+If the rotten area is above the threshold (15% by default) or the radar detects internal decay, the Pi triggers a GPIO actuator that pushes the fruit out of the line.
 
-## 📊 Core Features & Operational Guide
+Models can also be trained inside the desktop app using saved captures from the `RIPE/`, `UNRIPE/`, and `ROTTEN/` folders.
 
-### 1. Real-Time Vision & Rot Percentage Calculation
-- **Color Segmentation**:
-  - Healthy Ripe Magenta Peel: $H \in [140, 180]$ & $[0, 10]$
-  - Bracts / Scales: $H \in [35, 85]$ (Yellow-Green)
-  - Necrotic / Sunken Brown / Black Rot: $H \in [10, 30]$ & Low $V$ Dark Decay
-- **Precise Rotten Percentage**:
-  $$\text{Rotten Percentage (\%)} = \left( \frac{\text{Area of Necrotic Pixels}}{\text{Total Fruit Silhouette Area}} \right) \times 100$$
-- **Geometric Dimensions**:
-  - Length and Width calculated in millimeters using fixed optical ratio ($4.2 \text{ px/mm}$).
-  - Surface Area calculated in $\text{cm}^2$.
+## Bill of Materials
 
-### 2. Autonomous Cockpit (100% FULL-SCREEN CAMERA WITH FLOATING HUD OVERLAY)
-The entire application operates inside an **ULTRA-AESTHETIC EDGE-TO-EDGE CAMERA COCKPIT** with a **FLOATING GLASSMORPHIC HUD OVERLAY** and **ONE BUTTON ONLY: `'CAPTURE FRUIT'`**:
+| Component | Purpose |
+|---|---|
+| Raspberry Pi 5 (8 GB) | Main controller, running Raspberry Pi OS Bookworm (64-bit) |
+| Raspberry Pi Active Cooler | Keeps the Pi cool during real-time processing |
+| 27 W USB-C power supply (5.1 V / 5 A) | Powers the Pi and connected sensors |
+| Logitech C270 webcam | 720p, 30 FPS camera on a USB-A port (`/dev/video0`) |
+| Hi-Link HLK-LD6002 60 GHz radar on ANDAR ADTE2104 V2.0 board | Subsurface scan, connected by USB-C (`/dev/ttyUSB0` or `/dev/ttyACM0`) |
+| 45° sensor rig | Holds the radar at 45° and the camera 250 mm above the fruit |
+| Relay and sorting actuator (GPIO 17) | Drives a solenoid or diverter arm to remove bad fruit |
 
-- **Real-Time Full-Screen Camera**:
-  - **100% Canvas Immersion**: Camera feed commands 100% full width and full height of the display.
-  - **Floating Cyber HUD Overlay**: The circular system state dial, verdict status, rotten area %, linear neon threshold bar, and 45° FMCW radar oscilloscope float as a sleek glassmorphic overlay directly on the bottom of the video feed.
-  - **F11 / `[ ⛶ FULLSCREEN ]`**: Toggles borderless full-screen inspection mode.
-  - **Escape**: Instantly exits full-screen mode back to windowed layout.
-  - **Double-Click Video Feed**: Toggles true full-screen camera view directly with touch or mouse.
-  - **`[ 🔲 EXPAND CAMERA ]`**: Hides/shows the floating HUD overlay for 100% unobstructed camera vision.
-  - **Cybernetic Targeting Reticles**: Dual glowing corner brackets, 250mm optical target crosshair, dynamic laser sweep animation during scans, and live on-canvas telemetry badges.
+## Quick Start
 
-- **Click `CAPTURE FRUIT` (or Auto-Detect when fruit rests in cradle)**:
-  - **STEP 1: 45° FMCW RADAR SCAN** (0%–50% on radial dial): Fires 64 chirps from Hi-Link HLK-LD6002 (ANDAR ADTE2104) 60 GHz radar, measures dielectric constant and subsurface internal decay index ($D$).
-  - **STEP 2: CAPTURE CAMERA** (50%–100% on radial dial): Camera locks optical exposure, runs color segmentation, calculates precise rotten percentage, executes multi-modal fusion grading, automatically ejects degraded fruit via GPIO 17, and auto-saves genuine photo + telemetry.
-  - **SweetAlert Modal Popup**: Pops up an ultra-aesthetic SweetAlert dialog displaying the category verdict (`RIPE` ✓, `UNRIPE` !, or `ROTTEN` ✕), sensor metrics, and live dynamic accuracy telemetry.
+```bash
+pip install -r requirements.txt
+python3 main.py
+```
 
-1. **🟢 AUTOMATIC DETECT (Optical & Radar Presence Tracking)**:
-   - When a dragon fruit is placed into the cradle, the camera and radar detect its silhouette and echo.
-   - The system stabilizes for 0.8 seconds and automatically triggers the sequential 2-stage scan without needing to click the button.
-   - When the fruit is removed, the chamber automatically resets and rearms for the next fruit!
+## Using the Station
 
-2. **💾 AUTOMATIC SAVE (Structured Subfolder Triaging)**:
-   - Every scanned fruit is automatically triaged into [`RIPE/`](file:///c:/Users/paul/Documents/dragonfruit/RIPE), [`ROTTEN/`](file:///c:/Users/paul/Documents/dragonfruit/ROTTEN), or [`UNRIPE/`](file:///c:/Users/paul/Documents/dragonfruit/UNRIPE).
-   - In each category, files are cleanly organized into 3 dedicated subfolders:
-     - `original/`: Untouched, pristine raw camera photo (`<scan_id>_original.png`).
-     - `detection/`: The photo with full object detection annotations, YOLO box, fruit contour, and rot zones (`<scan_id>_detection.png`).
-     - `json/`: Full analytical JSON telemetry record (`<scan_id>.json`).
-   - Zero fake or static photos generated.
+The app opens as a full-screen camera view. A small status panel along the bottom shows the scan progress, the verdict, the rotten area percentage, and the radar signal.
 
-3. **⚙️ AUTOMATIC ADJUST (Adaptive Calibration & Dynamic Tuning)**:
-   - **Auto-Exposure / Lighting Adaptation**: Continuously computes luminance within the fruit silhouette and balances contrast gain.
-   - **Dynamic Threshold Calibration**: Auto-adjusts rot threshold based on fruit surface area (scaling for small vs large dragon fruits) and compensates for baseline radar drift.
-   - **Real-Time Dynamic Accuracy Recalculation**: Live accuracy percentage, dataset counts, and confusion matrix (TP, FP, FN, TN) are automatically re-evaluated in $< 5\text{ ms}$ on every scan.
+To scan a fruit:
 
-4. **✨ MINIMALIST MODERN SWEETALERT DIALOG (ACCURACY BUTTON REMOVED)**:
-   - Clunky manual accuracy buttons have been completely eliminated from the cockpit.
-   - Dynamic accuracy metrics, confusion matrices, and genuine sample counts are computed live and automatically presented inside the **SweetAlert Dialog** modal on scan completion.
+1. Place the fruit in the cradle. The scan starts on its own after about 0.8 seconds. You can also click `CAPTURE FRUIT`.
+2. Wait for the radar scan (first half of the progress dial) and the camera scan (second half).
+3. Read the result in the pop-up window. It shows the verdict (Ripe, Unripe, or Rotten), the sensor readings, and the current accuracy figures.
+4. Remove the fruit. The station resets for the next one.
 
----
+Controls:
 
-## 📁 Project Directory Structure
+| Action | Result |
+|---|---|
+| F11 or the `FULLSCREEN` button | Turn full-screen mode on or off |
+| Esc | Leave full-screen mode |
+| Double-click the video | Turn full-screen mode on or off |
+| `EXPAND CAMERA` button | Hide or show the status panel |
+
+## Analysis Details
+
+Peel color is classified by hue (OpenCV scale, 0–180):
+
+| Class | Hue range |
+|---|---|
+| Ripe (magenta) | 140–180 and 0–10 |
+| Bracts / scales (yellow-green) | 35–85 |
+| Rot (brown to black) | 10–30, with low brightness |
+
+Rotten percentage = (rotten pixel area ÷ total fruit area) × 100
+
+Length and width are given in millimeters using a fixed ratio of 4.2 px/mm. Surface area is given in cm².
+
+The app also adjusts itself while it runs:
+
+- It corrects exposure based on the brightness of the fruit.
+- It scales the rot threshold for small and large fruit.
+- It compensates for radar drift.
+- It recalculates accuracy and the confusion matrix after every scan.
+
+## Saved Results
+
+Every scan is saved automatically into `RIPE/`, `UNRIPE/`, or `ROTTEN/`. Each category folder contains three subfolders:
+
+- `original/`: the raw camera photo (`<scan_id>_original.png`)
+- `detection/`: the photo marked with the detection box, fruit outline, and rot areas (`<scan_id>_detection.png`)
+- `json/`: the full scan record (`<scan_id>.json`)
+
+## Project Structure
+
 ```
 dragonfruit/
-├── config.py                 # Core hardware parameters, thresholds, and color bounds
-├── main.py                   # Desktop application launcher
-├── requirements.txt          # Dependencies list
-├── PROJECT DETAILS.md        # Original project specifications
+├── config.py                 # Hardware settings, thresholds, and color ranges
+├── main.py                   # App launcher
+├── requirements.txt          # Python dependencies
+├── yolo11n.pt                # Pretrained YOLOv11 weights
 ├── hardware/
-│   ├── camera_controller.py  # Picamera2 (Cam Module 3) + OpenCV fallback + Simulation
-│   ├── radar_controller.py   # Infineon 60GHz FMCW Radar 45° incidence controller
-│   └── gpio_sorter.py        # Raspberry Pi 5 RP1 GPIO 17 sorting actuator driver
+│   ├── camera_controller.py  # Webcam capture with simulation fallback
+│   ├── radar_controller.py   # 60 GHz radar controller
+│   └── gpio_sorter.py        # GPIO 17 sorting actuator
 ├── core/
-│   ├── accuracy_tester.py    # Real-time dynamic accuracy benchmark & confusion matrix engine
-│   ├── vision_analyzer.py    # Color, size, skin texture & rot % engine (YOLO badge)
-│   ├── yolo_detector.py      # Pretrained deep learning model loader & fallback
-│   ├── fusion_classifier.py  # 45° FMCW Radar + Camera multi-modal decision logic
-│   ├── dataset_manager.py    # Subfolder dataset organizer (original, detection, json)
-│   └── model_trainer.py      # Feature extraction, model training and evaluation
+│   ├── vision_analyzer.py    # Color, size, texture, and rot analysis
+│   ├── yolo_detector.py      # YOLO model loader
+│   ├── fusion_classifier.py  # Combines radar and camera results
+│   ├── accuracy_tester.py    # Accuracy and confusion matrix
+│   ├── dataset_manager.py    # Saves scans into category subfolders
+│   └── model_trainer.py      # Model training and evaluation
 ├── gui/
-│   └── dashboard.py          # Unified Scanning Chamber, Radar, Auto-Save & Live Accuracy Cockpit
-├── yolo11n.pt                # Pretrained YOLOv11 deep learning neural network weights
-├── RIPE/                     # Ripe dataset: original/ (raw), detection/ (YOLO/boxes), json/
-├── ROTTEN/                   # Rotten dataset: original/ (raw), detection/ (YOLO/boxes), json/
-└── UNRIPE/                   # Unripe dataset: original/ (raw), detection/ (YOLO/boxes), json/
+│   └── dashboard.py          # Main app window
+├── RIPE/
+├── UNRIPE/
+└── ROTTEN/
 ```

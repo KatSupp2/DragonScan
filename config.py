@@ -15,7 +15,6 @@ CAMERA_HEIGHT = 720
 CAMERA_FPS = 30
 CAMERA_INDEX = 0                                                                               
 CAMERA_FOURCC = "MJPG"                                                              
-USE_PICAMERA2 = False                                                                                          
 CAMERA_EXPOSURE_LOCKED = True
 CAMERA_WHITE_BALANCE_LOCKED = True
 USE_YOLO_IF_AVAILABLE = False
