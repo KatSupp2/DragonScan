@@ -1,12 +1,19 @@
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
-DATASET_RIPE_DIR = BASE_DIR / "RIPE"
-DATASET_ROTTEN_DIR = BASE_DIR / "ROTTEN"
-DATASET_UNRIPE_DIR = BASE_DIR / "UNRIPE"
-MODELS_DIR = BASE_DIR
-DATASET_RIPE_DIR.mkdir(parents=True, exist_ok=True)
-DATASET_ROTTEN_DIR.mkdir(parents=True, exist_ok=True)
-DATASET_UNRIPE_DIR.mkdir(parents=True, exist_ok=True)
+# Severity classes (dataset folder name == class key)
+SEVERITY_CLASSES = ("NORMAL", "SLIGHTLY_ALTERED", "SEVERELY_ALTERED")
+SEVERITY_DISPLAY = {"NORMAL": "Normal", "SLIGHTLY_ALTERED": "Slightly altered", "SEVERELY_ALTERED": "Severely altered"}
+DATASET_NORMAL_DIR = BASE_DIR / "NORMAL"
+DATASET_SLIGHTLY_ALTERED_DIR = BASE_DIR / "SLIGHTLY_ALTERED"
+DATASET_SEVERELY_ALTERED_DIR = BASE_DIR / "SEVERELY_ALTERED"
+DATASET_DIRS = {
+    "NORMAL": DATASET_NORMAL_DIR,
+    "SLIGHTLY_ALTERED": DATASET_SLIGHTLY_ALTERED_DIR,
+    "SEVERELY_ALTERED": DATASET_SEVERELY_ALTERED_DIR,
+}
+ARCHIVE_DIR = BASE_DIR / "_archive"
+for _d in DATASET_DIRS.values():
+    _d.mkdir(parents=True, exist_ok=True)
 APP_NAME = "DragonScan v5.2.0 - 60 GHz FMCW Radar & Logitech C270 Optical Station"
 APP_VERSION = "5.2.0-SOVEREIGN"
 CAMERA_MODEL = "Logitech C270 HD Webcam (USB)"
@@ -49,6 +56,14 @@ WEIGHT_RADAR = 0.35
 # Internal decay = DECAY_WEIGHT_RADAR * radar decay + DECAY_WEIGHT_CAMERA * camera rotten fraction (blended in FusionClassifier)
 DECAY_WEIGHT_RADAR = 0.6
 DECAY_WEIGHT_CAMERA = 0.4
+# Severity thresholds. Severe: rot >= SEVERE_ROT (ROTTEN_SEGREGATION_THRESHOLD_PERCENT, slider-adjustable)
+# or internal decay >= SEVERE_DECAY (RADAR_INTERNAL_ROTTEN_THRESHOLD) or composite >= SEVERE_COMPOSITE.
+# Normal: rot < SLIGHT_ROT and internal decay < SLIGHT_DECAY. Everything else: slightly altered.
+# Tuned 2026-11-03 on the 79 imported scans (reference labels: 42 healthy, 37 rotten) to cut false
+# positives: at 5% 30/42 healthy fruit read as altered; at 10% 9/42 (rotten caught 28/37 -> 21/37).
+SEVERITY_SLIGHT_ROT_PCT = 10.0
+SEVERITY_SLIGHT_DECAY = 0.20
+SEVERITY_SEVERE_COMPOSITE_PCT = 18.0
 RIPE_COLOR_LOWER = (140, 50, 50)
 RIPE_COLOR_UPPER = (179, 255, 255)
 RIPE_COLOR_LOWER_SECONDARY = (0, 70, 70)                      

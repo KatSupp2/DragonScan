@@ -18,7 +18,7 @@ def main():
     )
     logger = logging.getLogger("DragonScan")
     logger.info(f"Starting {config.APP_NAME}...")
-    logger.info(f"Datasets: RIPE={config.DATASET_RIPE_DIR}, ROTTEN={config.DATASET_ROTTEN_DIR}")
+    logger.info("Datasets: " + ", ".join(f"{k}={v}" for k, v in config.DATASET_DIRS.items()))
 
     app = DragonScanApp()
     try:
