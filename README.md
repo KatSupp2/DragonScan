@@ -1,4 +1,4 @@
-# DragonScan v5.2.0
+# DragonScan App
 
 DragonScan is a dragon fruit inspection and sorting station built on the Raspberry Pi 5 (8 GB). It finds fruit whose peel looks normal but whose flesh has gone soft, translucent, or started to rot.
 
