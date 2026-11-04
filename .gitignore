@@ -25,3 +25,11 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+# DragonScan web
+node_modules/
+web/backend/var/
+web/frontend/dist/
+.pytest_cache/
+web/frontend/test-results/
+web/frontend/playwright-report/

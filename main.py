@@ -18,18 +18,16 @@ def main():
     )
     logger = logging.getLogger("DragonScan")
     logger.info(f"Starting {config.APP_NAME}...")
-    logger.info(f"Datasets: RIPE={config.DATASET_RIPE_DIR}, ROTTEN={config.DATASET_ROTTEN_DIR}")
+    logger.info("Datasets: " + ", ".join(f"{k}={v}" for k, v in config.DATASET_DIRS.items()))
 
     app = DragonScanApp()
     try:
         app.mainloop()
     except KeyboardInterrupt:
-        logger.info("Application interrupted by user. Exiting cleanly...")
+        logger.info("Application interrupted by user. Exiting...")
     finally:
         try:
             app.destroy()
         except Exception:
             pass
-
-if __name__ == "__main__":
-    main()
+main()
