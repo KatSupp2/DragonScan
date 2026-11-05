@@ -5,7 +5,7 @@ DragonScan is a dragon fruit inspection station built on the Raspberry Pi 5 (8 G
 The project has two parts:
 
 - **DragonScan App:** the desktop scanner described here, which runs the camera and radar in the hardware chamber.
-- **DragonScan website:** a local site with a dataset dashboard, a button that opens this app, and an activity log. See [web/README.md](web/README.md).
+- **DragonScan website:** a site with a dataset dashboard, chamber scan summaries, a button that opens this app, an activity log, and a study overview page. It runs locally or online. See [web/README.md](web/README.md).
 
 ## How It Works
 
@@ -14,7 +14,7 @@ Each fruit goes through two scans, one after the other:
 1. Radar scan: a 60 GHz FMCW radar, mounted at 45°, takes a reading of the fruit. Radar readings have not been verified yet, so the radar decay value is not a proven measure of flesh condition.
 2. Camera scan: a webcam measures peel color, size, skin texture, and the percentage of rotten peel area.
 
-Each fruit is placed in one of three severity classes, with a confidence score. The classes come from the rules below, not from examining the flesh:
+Each fruit is placed in one of three severity classes, with a confidence score. The classes come from the rules below, not from examining the flesh. These rules are a development placeholder, and the study's planned models and F0, F1 and U labels will replace them:
 
 | Class | Rule |
 |---|---|
@@ -65,6 +65,54 @@ python3 main.py
 ```
 
 You can also use the launch scripts: `run_dragonscan.bat` on Windows or `run_dragonscan.sh` on Linux and the Pi.
+
+## Raspberry Pi
+
+The camera and radar connect to the Pi. The team uses the hosted website in Firefox on the Pi, and its
+**Open scanner** button starts the app in its own window. The Pi runs no server and opens no network port.
+Each scan's images, record and radar data stay on the Pi. After a scan, the app sends the website a
+summary (scan ID, time, class and rotten peel percentage), and the Dashboard updates within about a
+minute. If the internet is down, summaries go out once it returns and the app is open. To put the
+website online, see [DEPLOY.md](web/docs/DEPLOY.md).
+
+1. Plug in the camera and radar, and copy this project to the Pi. The app does not need `web/`, `_archive/`
+   or `Oct 14/`.
+2. Open a terminal in the project folder, and allow access to the radar's USB port:
+
+   ```bash
+   sudo apt update && sudo apt install -y python3-tk python3-venv python3-pil.imagetk xdg-utils
+   sudo usermod -aG dialout $USER
+   ```
+
+   Log out and back in once.
+3. Start the app once. This installs what it needs, so it takes a few minutes and needs internet:
+
+   ```bash
+   bash run_dragonscan.sh
+   ```
+
+4. Close the app, then connect the website button to it:
+
+   ```bash
+   bash install_pi_launcher.sh
+   ```
+
+5. In Firefox, sign in as a researcher, go to **Scanner app** and choose **Open scanner**. The first time,
+   Firefox asks how to open the link. Choose DragonScan App and allow it.
+
+6. Connect the Pi to the website with the address and the Pi token from `hosted-setup.ps1`, then restart
+   the app:
+
+   ```bash
+   python3 tools/connect_site.py
+   ```
+
+   `python3 tools/connect_site.py --status` shows the connection and any scans waiting to send. The token is
+   saved in `~/.config/dragonscan/`, outside the project.
+
+Clicking again while the app is open does nothing. If the app does not appear, check
+`~/.local/state/dragonscan/scanner.log`. To remove the link, run `bash install_pi_launcher.sh --remove`.
+Run the installer again if you move the project folder.
 
 ## Using the Software
 
@@ -199,6 +247,7 @@ dragonscan/
 ├── main.py                   # App launcher
 ├── run_dragonscan.bat        # Windows launch script
 ├── run_dragonscan.sh         # Linux / Raspberry Pi launch script
+├── install_pi_launcher.sh    # Lets the website's Open scanner button start the app on the Pi
 ├── requirements.txt          # Python dependencies
 ├── yolo11n.pt                # Pretrained YOLOv11 weights
 ├── Oct 14/                   # Original photos behind the 79 imported scans
@@ -212,6 +261,7 @@ dragonscan/
 │   ├── fusion_classifier.py  # Severity class and confidence from camera and radar
 │   ├── accuracy_tester.py    # 3-class accuracy, confusion matrix, and missed-severe count
 │   ├── dataset_manager.py    # Saves, relabels, and loads scans by severity class
+│   ├── site_sync.py          # Sends scan summaries to the website
 │   └── batch_scanner.py      # Batch import of a photo folder (needs a connected radar)
 ├── gui/
 │   ├── dashboard.py          # Main app window
@@ -220,6 +270,7 @@ dragonscan/
 │   └── assets/               # Logo and other images
 ├── tools/
 │   ├── archive_dataset.py    # Move all saved scans into _archive/
+│   ├── connect_site.py       # Connect the Pi to the website, or check the connection
 │   └── review_dataset.py     # List, flag, relabel, and delete scans
 ├── _archive/                 # Archived scans, including the pre-severity originals
 ├── NORMAL/
