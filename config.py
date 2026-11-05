@@ -14,7 +14,7 @@ DATASET_DIRS = {
 ARCHIVE_DIR = BASE_DIR / "_archive"
 for _d in DATASET_DIRS.values():
     _d.mkdir(parents=True, exist_ok=True)
-APP_NAME = "DragonScan v5.2.0 - 60 GHz FMCW Radar & Logitech C270 Optical Station"
+APP_NAME = "DragonScan App"
 APP_VERSION = "5.2.0-SOVEREIGN"
 CAMERA_MODEL = "Logitech C270 HD Webcam (USB)"
 CAMERA_WIDTH = 1280

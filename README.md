@@ -1,15 +1,20 @@
-# DragonScan v5.2.0
+# DragonScan App
 
-DragonScan is a dragon fruit inspection and sorting station built on the Raspberry Pi 5 (8 GB). It finds fruit whose peel looks normal but whose flesh has gone soft, translucent, or started to rot.
+DragonScan is a dragon fruit inspection station built on the Raspberry Pi 5 (8 GB). It is being developed to find fruit whose peel looks normal but whose flesh has gone soft, translucent, or started to rot.
+
+The project has two parts:
+
+- **DragonScan App:** the desktop scanner described here, which runs the camera and radar in the hardware chamber.
+- **DragonScan website:** a local site with a dataset dashboard, a button that opens this app, and an activity log. See [web/README.md](web/README.md).
 
 ## How It Works
 
 Each fruit goes through two scans, one after the other:
 
-1. Radar scan: a 60 GHz FMCW radar, mounted at 45°, measures water content and flesh firmness beneath the peel.
+1. Radar scan: a 60 GHz FMCW radar, mounted at 45°, takes a reading of the fruit. Radar readings have not been verified yet, so the radar decay value is not a proven measure of flesh condition.
 2. Camera scan: a webcam measures peel color, size, skin texture, and the percentage of rotten peel area.
 
-Each fruit is placed in one of three severity classes, with a confidence score:
+Each fruit is placed in one of three severity classes, with a confidence score. The classes come from the rules below, not from examining the flesh:
 
 | Class | Rule |
 |---|---|
@@ -51,6 +56,8 @@ Both sensors reconnect on their own, without restarting the app:
 If your radar takes longer than 0.5 seconds to start sending data, raise `HANDSHAKE_TIMEOUT_SEC` at the top of `hardware/radar_controller.py`.
 
 ## Quick Start
+
+Researchers can open the app from the website's **Scanner app** page, or start it directly:
 
 ```bash
 pip install -r requirements.txt
@@ -152,6 +159,8 @@ Each class folder contains three subfolders:
 - `detection/`: the photo marked with the fruit outline and rot areas (`<scan_id>_detection.png`)
 - `json/`: the full scan record (`<scan_id>.json`)
 
+The website's Dashboard counts only the original imported scans, so new scans from this app appear there as a separate count.
+
 Each JSON record stores:
 
 - `category`, `label_source` (human / auto), `capture_source` (station / import), and `fruit_id`, which groups repeat scans of the same fruit;
@@ -185,6 +194,7 @@ The original records, before re-sorting, are in `_archive/<date>_pre_severity_mi
 
 ```
 dragonscan/
+├── web/                      # DragonScan website (see web/README.md)
 ├── config.py                 # Hardware settings, thresholds, severity classes, weights, and color ranges
 ├── main.py                   # App launcher
 ├── run_dragonscan.bat        # Windows launch script
